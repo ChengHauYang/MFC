@@ -72,7 +72,15 @@
 | **Homebrew** (macOS) 🍺 | `brew install mflowcode/mfc/mfc` |
 | **From source** 💻 | `git clone https://github.com/MFlowCode/MFC && cd MFC && ./mfc.sh build -j $(nproc)` |
 
-Your first simulation:
+Your first simulation (a 1D Sod shock tube, ~400 cells — runs in seconds):
+```bash
+./mfc.sh run examples/1D_sodshocktube/case.py -n 2
+```
+Results land in `examples/1D_sodshocktube/silo_hdf5/` (plus restart data and the resolved `*.inp` parameter files). Plot pressure straight from the terminal:
+```bash
+./mfc.sh viz examples/1D_sodshocktube/ --var pres --png
+```
+This saves a PNG under `examples/1D_sodshocktube/viz/`; drop `--png` to explore the data in an interactive terminal UI. Want a 3D case instead? Then try:
 ```bash
 ./mfc.sh run examples/3D_shockdroplet/case.py -n $(nproc)
 ```
@@ -101,16 +109,38 @@ And a high-amplitude acoustic wave reflecting and emerging through a circular or
 
 ## Toolchain
 
-| Command | Description |
-|---------|-------------|
-| `./mfc.sh build` | Build MFC and its dependencies |
-| `./mfc.sh run case.py` | Run a simulation case (interactive or batch: SLURM/PBS/LSF) |
-| `./mfc.sh test` | Run the test suite |
-| `./mfc.sh validate case.py` | Check a case file for errors before running |
-| `./mfc.sh new my_case` | Create a new case from a template |
-| `./mfc.sh clean` | Remove build artifacts |
+Everything goes through `./mfc.sh`. Run `./mfc.sh <command> --help` for the full option list of any command.
 
-Run `./mfc.sh <command> --help` for detailed options, or see the [full documentation](https://mflowcode.github.io/documentation/index.html). Tab completion for bash and zsh is auto-installed after you have run `./mfc.sh generate` (or any non-`new` command) at least once. Play with the examples in `examples/` ([showcased here](https://mflowcode.github.io/documentation/examples.html)).
+### Build
+
+| Requirement | Command |
+| ----------- | ------- |
+| Compile `simulation` in Debug mode | `./mfc.sh build -t simulation -j 10 --debug` |
+| Compile `simulation` in Release mode | `./mfc.sh build -t simulation -j 10` |
+| Compile all primary targets | `./mfc.sh build -j 10 --debug` |
+| See all build options | `./mfc.sh build --help` |
+
+`-t/--targets` picks a subset of MFC's three targets (`pre_process`, `simulation`, `post_process`); all three are built by default.
+Feature flags (`--debug`, `--gpu`, `--mpi`, `--single`, ...) are remembered by the toolchain, so they also apply to later `run`/`test` commands; pass `--no-<feature>` to turn one off.
+
+### Use
+
+| Requirement | Command |
+| ----------- | ------- |
+| Run a case end-to-end (`pre_process` + `simulation` + `post_process`) | `./mfc.sh run examples/3D_shockdroplet/case.py -n 4` |
+| Run only some stages | `./mfc.sh run <case.py> -t simulation post_process -n 4` |
+| Rebuild from scratch before running | `./mfc.sh run <case.py> -s -n 4` |
+| Submit to a cluster (batch: SLURM/PBS/LSF) | `./mfc.sh run <case.py> -c <template> -e batch -N 2 -n 8 -w 01:00:00` |
+| Check a case before running it | `./mfc.sh validate <case.py>` |
+| Start a new case from a template | `./mfc.sh new my_case -t 2D_minimal` |
+| Look up one of the 3,000+ case parameters | `./mfc.sh params dt` |
+| Run the test suite | `./mfc.sh test -j 10` |
+| Render a result image or video | `./mfc.sh viz <case_dir>/ --var pres --step 1000 --png` |
+| Remove build artifacts | `./mfc.sh clean` |
+
+Results are written to `silo_hdf5/` next to `case.py`: inspect them with `./mfc.sh viz <case_dir>/` (terminal UI by default) or open them in ParaView, VisIt, or your favorite tool.
+
+Tab completion for bash and zsh is auto-installed after you have run `./mfc.sh generate` (or any non-`new` command) at least once. Play with the examples in `examples/` ([showcased here](https://mflowcode.github.io/documentation/examples.html)), or see the [full documentation](https://mflowcode.github.io/documentation/index.html).
 
 ## Is this _really_ exascale?
 

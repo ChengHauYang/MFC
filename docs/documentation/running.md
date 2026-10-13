@@ -76,7 +76,7 @@ using 4 cores:
 - Visualizing post-processed output:
 
 ```shell
-./mfc.sh viz examples/2D_shockbubble/ --var pres --step 1000
+./mfc.sh viz examples/2D_shockbubble/ --var pres --step 1000 --png
 ```
 
 See @ref visualization "Flow Visualization" for the full set of visualization options.

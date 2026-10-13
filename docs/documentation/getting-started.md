@@ -213,14 +213,17 @@ After running post_process, visualize the output directly from the command line:
 # List available variables
 ./mfc.sh viz examples/2D_shockbubble/ --list-vars --step 0
 
+# Explore the output in a terminal UI (the default; works over SSH)
+./mfc.sh viz examples/2D_shockbubble/ --var pres
+
 # Render a pressure snapshot
-./mfc.sh viz examples/2D_shockbubble/ --var pres --step 1000
+./mfc.sh viz examples/2D_shockbubble/ --var pres --step 1000 --png
 
 # Generate a video
 ./mfc.sh viz examples/2D_shockbubble/ --var pres --step all --mp4
 ```
 
-Output images and videos are saved to the `viz/` subdirectory of the case.
+Images and videos are saved to the `viz/` subdirectory of the case; `--interactive` opens a Dash web UI in your browser instead.
 For more options, see @ref visualization "Flow Visualization" or run `./mfc.sh viz -h`.
 
 ## Helpful Tools
@@ -238,11 +241,16 @@ MFC has over 3,000 case parameters. Use the `params` command to search and explo
 
 ### Creating a New Case
 
-Generate a case file template to get started quickly:
+Generate a case directory (containing `case.py`) from a template to get started quickly:
 
 ```shell
-./mfc.sh new my_case.py     # Create a new case file from template
+./mfc.sh new my_case                  # Create with the default 1D_minimal template
+./mfc.sh new my_case -t 2D_minimal    # Choose a dimensionality
+./mfc.sh new my_case -t example:1D_sodshocktube   # Copy an existing example
+./mfc.sh new --list                   # List all available templates
 ```
+
+Then edit `my_case/case.py` and run it with `./mfc.sh run my_case/case.py`.
 
 ### Shell Completion
 
